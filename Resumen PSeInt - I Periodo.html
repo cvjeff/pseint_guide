@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva de PSeInt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0A3D73 0%, #1e5799 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(10, 61, 115, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            min-height: calc(100vh - 80px);
+            position: relative;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0A3D73, #2980b9);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .content-section {
+            padding: 2rem;
+        }
+
+        /* Interactive Cards */
+        .section-card {
+            background: white;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(10, 61, 115, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(10, 61, 115, 0.2);
+            border-color: #0A3D73;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #0A3D73, #2980b9);
+            color: white;
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .card-header:hover {
+            background: linear-gradient(135deg, #2980b9, #0A3D73);
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card-content {
+            padding: 2rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .card-content.active {
+            max-height: 2000px;
+        }
+
+        .card-content.large-content.active {
+            max-height: 3000px;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .code-block::before {
+            content: 'PSeInt';
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: #0A3D73;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            color: #0A3D73;
+            font-weight: bold;
+        }
+
+        /* Interactive Elements */
+        .operator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .operator-item {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .operator-item:hover {
+            background: linear-gradient(135deg, #0A3D73, #2980b9);
+            color: white;
+            transform: scale(1.05);
+            border-color: #0A3D73;
+        }
+
+        .operator-symbol {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0A3D73;
+            margin-bottom: 0.5rem;
+        }
+
+        .operator-item:hover .operator-symbol {
+            color: white;
+        }
+
+        /* Data Types */
+        .data-types {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .data-type {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            border: 3px solid #0A3D73;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-type::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(10, 61, 115, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .data-type:hover::before {
+            left: 100%;
+        }
+
+        .data-type:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(10, 61, 115, 0.3);
+        }
+
+        .data-type-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Interactive Example */
+        .interactive-example {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid #0A3D73;
+        }
+
+        .example-input {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .example-input input {
+            padding: 0.8rem;
+            border: 2px solid #0A3D73;
+            border-radius: 8px;
+            font-size: 1rem;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .example-input button {
+            background: #0A3D73;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .example-input button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .example-output {
+            background: white;
+            border: 2px solid #0A3D73;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            min-height: 50px;
+            font-family: 'Courier New', monospace;
+            color: #0A3D73;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        .footer {
+            background: #0A3D73;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .operator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-types {
+                flex-direction: column;
+            }
+            
+            .example-input {
+                flex-direction: column;
+            }
+        }
+
+        /* Scroll animations */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="logo">🔧 PSeInt Guide</a>
+                <ul class="nav-links">
+                    <li><a href="#operadores">Operadores</a></li>
+                    <li><a href="#variables">Variables</a></li>
+                    <li><a href="#tipos">Tipos de Datos</a></li>
+                    <li><a href="#estructuras">Estructuras</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Guía Interactiva de PSeInt</h1>
+                <p>Aprende programación de forma visual e interactiva</p>
+            </div>
+        </section>
+
+        <div class="container content-section">
+            <!-- Operadores Section -->
+            <div class="section-card animate-on-scroll" id="operadores">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2>🔢 Operadores</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <h3>Aritméticos</h3>
+                    <div class="operator-grid">
+                        <div class="operator-item">
+                            <div class="operator-symbol">+</div>
+                            <div>Suma</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">-</div>
+                            <div>Resta</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">*</div>
+                            <div>Multiplicación</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">/</div>
+                            <div>División (da como resultado el cociente)</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">%</div>
+                            <div>Módulo (da como resultado el residuo)</div>
+                        </div>
+                    </div>
+
+                    <h3>Relacionales</h3>
+                    <div class="operator-grid">
+                        <div class="operator-item">
+                            <div class="operator-symbol">=</div>
+                            <div>Igual</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">&lt;&gt;</div>
+                            <div>Diferente</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">&lt;</div>
+                            <div>Menor que</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">&gt;</div>
+                            <div>Mayor que</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">&lt;=</div>
+                            <div>Menor o igual</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">&gt;=</div>
+                            <div>Mayor o igual</div>
+                        </div>
+                    </div>
+
+                    <h3>Lógicos</h3>
+                    <div class="operator-grid">
+                        <div class="operator-item">
+                            <div class="operator-symbol">Y</div>
+                            <div>Conjunción (AND): Ambas condiciones tienen que ser verdaderas</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">O</div>
+                            <div>Disyunción (OR): Al menos una condición debe ser verdadera</div>
+                        </div>
+                        <div class="operator-item">
+                            <div class="operator-symbol">NO</div>
+                            <div>Negación (NOT): Si algo está positivo se vuelve negativo o viceversa</div>
+                        </div>
+                    </div>
+
+                    <div class="interactive-example">
+                        <h4>🧮 Calculadora Interactiva</h4>
+                        <div class="example-input">
+                            <input type="number" id="num1" placeholder="Primer número">
+                            <select id="operator">
+                                <option value="+">+</option>
+                                <option value="-">-</option>
+                                <option value="*">*</option>
+                                <option value="/">/</option>
+                                <option value="%">%</option>
+                            </select>
+                            <input type="number" id="num2" placeholder="Segundo número">
+                            <button onclick="calculate()">Calcular</button>
+                        </div>
+                        <div class="example-output" id="calcResult">Resultado aparecerá aquí...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Variables y Constantes -->
+            <div class="section-card animate-on-scroll" id="variables">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2>📦 Variables y Constantes</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <div class="data-types">
+                        <div class="data-type">
+                            <div class="data-type-icon">📝</div>
+                            <h3>Variables</h3>
+                            <p>Espacios de memoria para guardar datos que pueden cambiar durante la ejecución del programa.</p>
+                        </div>
+                        <div class="data-type">
+                            <div class="data-type-icon">🔒</div>
+                            <h3>Constantes</h3>
+                            <p>Valores fijos que no cambian durante la ejecución del programa.</p>
+                        </div>
+                    </div>
+                    <div class="interactive-example">
+                        <h4>📝 Ejemplos</h4>
+                        <div class="code-block">
+                            <pre>// Variable (puede cambiar)
+nombre <- "Juan"
+edad <- 25
+
+// Constante (no cambia)
+PI <- 3.14</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipos de Datos -->
+            <div class="section-card animate-on-scroll" id="tipos">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2>🎯 Tipos de Datos</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <div class="data-types">
+                        <div class="data-type">
+                            <div class="data-type-icon">🔤</div>
+                            <h3>Caracter</h3>
+                            <p>Letras, símbolos o cadenas como <code>"Hola"</code>. No sirven para operaciones matemáticas.</p>
+                        </div>
+                        <div class="data-type">
+                            <div class="data-type-icon">🔢</div>
+                            <h3>Entero</h3>
+                            <p>Números sin decimales, pueden ser positivos o negativos (<code>5</code>, <code>-10</code>).</p>
+                        </div>
+                        <div class="data-type">
+                            <div class="data-type-icon">🎯</div>
+                            <h3>Real</h3>
+                            <p>Números con decimales, también pueden ser positivos o negativos (<code>3.14</code>, <code>-2.5</code>).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instrucciones Básicas -->
+            <div class="section-card animate-on-scroll">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2>⚡ Instrucciones Básicas</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #0A3D73;">
+                            <strong>Escribir:</strong> Muestra información al usuario.
+                        </li>
+                        <li style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #0A3D73;">
+                            <strong>Leer:</strong> Solicita un valor al usuario.
+                        </li>
+                        <li style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #0A3D73;">
+                            <strong>&lt;- o =:</strong> Operador de asignación. Se usa para guardar un valor en una variable.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Estructuras de Control -->
+            <div class="section-card animate-on-scroll" id="estructuras">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2>🔄 Estructuras de Control</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content large-content">
+                    <h3>Condicional Si-Entonces</h3>
+                    <p>Se utiliza para ejecutar un bloque de código solo cuando se cumple una condición específica. Si la condición es verdadera, se ejecuta el bloque "Entonces"; si es falsa, se ejecuta el bloque "Sino" (opcional).</p>
+                    <div class="code-block">
+                        <pre>Si x > 0 Entonces
+    Escribir "Positivo"
+Sino
+    Escribir "Negativo o cero"
+FinSi</pre>
+                    </div>
+
+                    <h3>Bucle Mientras</h3>
+                    <p>Se utiliza para repetir un bloque de código mientras una condición sea verdadera. La condición se evalúa antes de cada iteración, por lo que si inicialmente es falsa, el bloque no se ejecutará ninguna vez.</p>
+                    <div class="code-block">
+                        <pre>Mientras x < 5 Hacer
+    Escribir x
+    x <- x + 1
+FinMientras</pre>
+                    </div>
+
+                    <h3>Bucle Para</h3>
+                    <p>Se utiliza cuando se conoce de antemano el número exacto de iteraciones. Permite controlar una variable contador que se incrementa o decrementa automáticamente en cada iteración hasta alcanzar un valor final.</p>
+                    <div class="code-block">
+                        <pre>Para i <- 1 Hasta 5 Con Paso 1 Hacer
+    Escribir "Número: ", i
+FinPara</pre>
+                    </div>
+
+                    <h3>Según (estructura condicional múltiple)</h3>
+                    <p>Se utiliza cuando se necesita evaluar múltiples casos posibles para una variable. Es más eficiente que escribir múltiples estructuras Si-Entonces anidadas cuando se compara una misma variable con diferentes valores.</p>
+                    <div class="code-block">
+                        <pre>Segun opcion Hacer
+    1:
+        Escribir "Seleccionó uno"
+    2:
+        Escribir "Seleccionó dos"
+    De Otro Modo:
+        Escribir "Opción no válida"
+FinSegun</pre>
+                    </div>
+
+                    <div class="interactive-example">
+                        <h4>🎮 Simulador de Bucle Para</h4>
+                        <div class="example-input">
+                            <input type="number" id="loopStart" placeholder="Inicio" value="1">
+                            <input type="number" id="loopEnd" placeholder="Fin" value="5">
+                            <input type="number" id="loopStep" placeholder="Paso" value="1">
+                            <button onclick="simulateLoop()">Ejecutar Bucle</button>
+                        </div>
+                        <div class="example-output" id="loopResult">Resultado del bucle aparecerá aquí...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contador y Acumulador -->
+            <div class="section-card animate-on-scroll">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2>📊 Contador y Acumulador</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <div class="data-types">
+                        <div class="data-type">
+                            <div class="data-type-icon">🔢</div>
+                            <h3>Contador</h3>
+                            <p>Se incrementa generalmente en uno para contar iteraciones.</p>
+                            <div class="code-block">
+                                <pre>contador <- contador + 1</pre>
+                            </div>
+                        </div>
+                        <div class="data-type">
+                            <div class="data-type-icon">➕</div>
+                            <h3>Acumulador</h3>
+                            <p>Suma progresivamente valores.</p>
+                            <div class="code-block">
+                                <pre>suma <- suma + valor</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interactive-example">
+                        <h4>🧮 Simulador de Contador y Acumulador</h4>
+                        <div class="example-input">
+                            <input type="number" id="addValue" placeholder="Valor a agregar">
+                            <button onclick="addToCounter()">Contar (+1)</button>
+                            <button onclick="addToAccumulator()">Acumular</button>
+                            <button onclick="resetCounters()">Reiniciar</button>
+                        </div>
+                        <div class="example-output" id="counterResult">
+                            Contador: 0<br>
+                            Acumulador: 0
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                Ing. Jeffry Carballo Vargas, Mag.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Variables globales para ejemplos interactivos
+        let counter = 0;
+        let accumulator = 0;
+
+        // Toggle card functionality
+        function toggleCard(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            content.classList.toggle('active');
+            icon.style.transform = content.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+
+        // Calculator functionality
+        function calculate() {
+            const num1 = parseFloat(document.getElementById('num1').value);
+            const num2 = parseFloat(document.getElementById('num2').value);
+            const operator = document.getElementById('operator').value;
+            const resultDiv = document.getElementById('calcResult');
+
+            if (isNaN(num1) || isNaN(num2)) {
+                resultDiv.innerHTML = '❌ Por favor ingresa números válidos';
+                return;
+            }
+
+            let result;
+            let operation;
+
+            switch (operator) {
+                case '+':
+                    result = num1 + num2;
+                    operation = `${num1} + ${num2}`;
+                    break;
+                case '-':
+                    result = num1 - num2;
+                    operation = `${num1} - ${num2}`;
+                    break;
+                case '*':
+                    result = num1 * num2;
+                    operation = `${num1} * ${num2}`;
+                    break;
+                case '/':
+                    if (num2 === 0) {
+                        resultDiv.innerHTML = '❌ Error: División por cero';
+                        return;
+                    }
+                    result = num1 / num2;
+                    operation = `${num1} / ${num2}`;
+                    break;
+                case '%':
+                    if (num2 === 0) {
+                        resultDiv.innerHTML = '❌ Error: Módulo por cero';
+                        return;
+                    }
+                    result = num1 % num2;
+                    operation = `${num1} % ${num2}`;
+                    break;
+            }
+
+            resultDiv.innerHTML = `
+                <strong>Operación:</strong> ${operation}<br>
+                <strong>Resultado:</strong> ${result}
+            `;
+        }
+
+        // Loop simulator
+        function simulateLoop() {
+            const start = parseInt(document.getElementById('loopStart').value);
+            const end = parseInt(document.getElementById('loopEnd').value);
+            const step = parseInt(document.getElementById('loopStep').value);
+            const resultDiv = document.getElementById('loopResult');
+
+            if (isNaN(start) || isNaN(end) || isNaN(step) || step === 0) {
+                resultDiv.innerHTML = '❌ Por favor ingresa valores válidos';
+                return;
+            }
+
+            let output = '<strong>Ejecución del bucle:</strong><br>';
+            let iterations = 0;
+
+            if (step > 0) {
+                for (let i = start; i <= end; i += step) {
+                    output += `Iteración ${++iterations}: i = ${i}<br>`;
+                    if (iterations > 20) {
+                        output += '... (demasiadas iteraciones)';
+                        break;
+                    }
+                }
+            } else {
+                for (let i = start; i >= end; i += step) {
+                    output += `Iteración ${++iterations}: i = ${i}<br>`;
+                    if (iterations > 20) {
+                        output += '... (demasiadas iteraciones)';
+                        break;
+                    }
+                }
+            }
+
+            output += `<br><strong>Total de iteraciones:</strong> ${Math.min(iterations, 20)}`;
+            resultDiv.innerHTML = output;
+        }
+
+        // Counter and accumulator functions
+        function addToCounter() {
+            counter++;
+            updateCounterDisplay();
+        }
+
+        function addToAccumulator() {
+            const value = parseFloat(document.getElementById('addValue').value);
+            if (!isNaN(value)) {
+                accumulator += value;
+                updateCounterDisplay();
+            }
+        }
+
+        function resetCounters() {
+            counter = 0;
+            accumulator = 0;
+            updateCounterDisplay();
+        }
+
+        function updateCounterDisplay() {
+            document.getElementById('counterResult').innerHTML = `
+                <strong>Contador:</strong> ${counter}<br>
+                <strong>Acumulador:</strong> ${accumulator}
+            `;
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(10, 61, 115, 0.98)';
+            } else {
+                header.style.background = 'rgba(10, 61, 115, 0.95)';
+            }
+        });
+
+        // Initialize first card as open
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstCard = document.querySelector('.section-card .card-content');
+            const firstIcon = document.querySelector('.section-card .toggle-icon');
+            if (firstCard && firstIcon) {
+                firstCard.classList.add('active');
+                firstIcon.style.transform = 'rotate(180deg)';
+            }
+        });
+    </script>
+</body>
+</html>
